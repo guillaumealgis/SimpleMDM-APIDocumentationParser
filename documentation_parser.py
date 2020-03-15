@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import datetime
 import os
 import pathlib
 import re
@@ -10,9 +11,12 @@ import requests
 SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
 
 OUTPUT_DIRECTORY = os.path.join(SCRIPT_PATH, "Versions")
+
 CACHE_DIRECTORY = os.path.join(SCRIPT_PATH, "cache")
 CACHE_FILENAME = "Documentation.html"
 CACHE_FILEPATH = os.path.join(CACHE_DIRECTORY, CACHE_FILENAME)
+
+MAX_CACHE_DURATION = datetime.timedelta(days=1)
 
 
 class DocExample:
@@ -175,7 +179,12 @@ def main():
 
 
 def fetch_api_doc():
-    if os.path.isfile(CACHE_FILEPATH):
+    cache_modification_date = datetime.datetime.fromtimestamp(
+        os.path.getmtime(CACHE_FILEPATH)
+    )
+    cache_modification_timedelta = datetime.datetime.now() - cache_modification_date
+
+    if cache_modification_timedelta <= MAX_CACHE_DURATION:
         return
 
     pathlib.Path(CACHE_DIRECTORY).mkdir(parents=False, exist_ok=True)
