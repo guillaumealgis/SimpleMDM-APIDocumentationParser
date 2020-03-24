@@ -179,15 +179,20 @@ def main():
 
 
 def fetch_api_doc():
-    cache_modification_date = datetime.datetime.fromtimestamp(
-        os.path.getmtime(CACHE_FILEPATH)
-    )
-    cache_modification_timedelta = datetime.datetime.now() - cache_modification_date
-
-    if cache_modification_timedelta <= MAX_CACHE_DURATION:
-        return
-
     pathlib.Path(CACHE_DIRECTORY).mkdir(parents=False, exist_ok=True)
+
+    if not os.path.isfile(CACHE_FILEPATH):
+        should_refresh_cache = True
+    else:
+        cache_modification_date = datetime.datetime.fromtimestamp(
+            os.path.getmtime(CACHE_FILEPATH)
+        )
+        cache_modification_timedelta = datetime.datetime.now() - cache_modification_date
+
+        should_refresh_cache = cache_modification_timedelta > MAX_CACHE_DURATION
+
+    if not should_refresh_cache:
+        return
 
     r = requests.get("https://simplemdm.com/docs/api/")
     r.raise_for_status()
