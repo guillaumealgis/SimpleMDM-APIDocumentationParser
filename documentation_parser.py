@@ -177,6 +177,8 @@ def main():
 
     write_formatted_documentation(version, formatted)
 
+    print(f"Wrote documentation for version {version}")
+
 
 def fetch_api_doc():
     pathlib.Path(CACHE_DIRECTORY).mkdir(parents=False, exist_ok=True)
@@ -193,6 +195,8 @@ def fetch_api_doc():
 
     if not should_refresh_cache:
         return
+
+    print("Refreshing cache")
 
     r = requests.get("https://simplemdm.com/docs/api/")
     r.raise_for_status()
