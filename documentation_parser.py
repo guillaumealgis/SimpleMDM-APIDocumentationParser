@@ -46,8 +46,8 @@ class DocExample:
 
 
 class DocParser:
-    def __init__(self):
-        with open(CACHE_FILEPATH, "r") as fp:
+    def __init__(self, doc_path):
+        with open(doc_path, "r") as fp:
             self.soup = BeautifulSoup(fp, "html.parser")
 
     def parse_version(self):
@@ -168,8 +168,8 @@ class DocParser:
 
 
 def main():
-    fetch_api_doc()
-    doc_parser = DocParser()
+    fetch_api_doc(CACHE_FILEPATH)
+    doc_parser = DocParser(CACHE_FILEPATH)
     version = doc_parser.parse_version()
     doc_examples = doc_parser.parse_examples()
     webhooks_events = doc_parser.parse_webhooks_events()
@@ -180,14 +180,16 @@ def main():
     print(f"Wrote documentation for version {version}")
 
 
-def fetch_api_doc():
-    pathlib.Path(CACHE_DIRECTORY).mkdir(parents=False, exist_ok=True)
+def fetch_api_doc(output_path):
+    cache_path = pathlib.Path(output_path)
 
-    if not os.path.isfile(CACHE_FILEPATH):
+    cache_path.parent.mkdir(parents=False, exist_ok=True)
+
+    if not cache_path.exists():
         should_refresh_cache = True
     else:
         cache_modification_date = datetime.datetime.fromtimestamp(
-            os.path.getmtime(CACHE_FILEPATH)
+            cache_path.stat().st_mtime
         )
         cache_modification_timedelta = datetime.datetime.now() - cache_modification_date
 
