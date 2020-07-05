@@ -123,11 +123,15 @@ class CodeSnippet:
         self.code = snippet
 
     def _reparse_snippet_as_JSON_response(self, snippet):
-        # Try to make the response parsable...
+        # Try to make the JSON response parsable...
         ellipsis_token = '"__API_DOC_PARSER__ELLIPSIS__"'
         snippet = snippet.replace("...", ellipsis_token)
         snippet = snippet.replace("=>", ":")
         snippet = re.sub(r'([^\w"])nil([^\w"])', r"\1null\2", snippet)
+        snippet = snippet.replace(
+            'com.unwiredmdm.aabc717175a3467b93af177aa5f1992d"',
+            'com.unwiredmdm.aabc717175a3467b93af177aa5f1992d",',
+        )
 
         json_data = json.loads(snippet)
         self.language = "json"
@@ -201,11 +205,21 @@ class DocParser:
             elif child.name == "table":
                 self._parse_parameters(child)
 
-            elif child.name == "pre" or child.name == "code":
+            elif self._is_code_node(child):
                 self._parse_code_block(child)
 
             elif child.name == "p":
                 self._parse_children(child)
+
+    def _is_code_node(self, node):
+        if node.name == "pre" or node.name == "code":
+            return True
+
+        classes = node.get("class", [])
+        if node.name == "div" and "highlight" in classes:
+            return True
+
+        return False
 
     def _begin_parsing_new_api_request(self):
         if self.current_api_request and not self.current_api_request.is_empty:
@@ -277,7 +291,9 @@ class DocParser:
         elif "json" in classes:
             language = "json"
 
-        if len(codeblock.contents) == 1 and codeblock.contents[0].name == "code":
+        if len(codeblock.contents) == 1 and (
+            codeblock.contents[0].name == "pre" or codeblock.contents[0].name == "code"
+        ):
             self._parse_code_block(codeblock.contents[0], language=language)
             return
 
