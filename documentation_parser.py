@@ -92,9 +92,9 @@ class CodeSnippet:
     def __init__(self, code, language=None):
         self.code = code
         self.language = language
-        self._reparse_snipped()
+        self._reparse_snippet()
 
-    def _reparse_snipped(self):
+    def _reparse_snippet(self):
         if not self.code.strip().startswith("curl"):
             return
 
@@ -114,15 +114,15 @@ class CodeSnippet:
         if not new_snippet:
             self.response = None
         elif new_snippet.startswith("HTTP"):
-            self._reparse_snipped_as_HTTP_response(new_snippet)
+            self._reparse_snippet_as_HTTP_response(new_snippet)
         else:
-            self._reparse_snipped_as_JSON_response(new_snippet)
+            self._reparse_snippet_as_JSON_response(new_snippet)
 
-    def _reparse_snipped_as_HTTP_response(self, snippet):
+    def _reparse_snippet_as_HTTP_response(self, snippet):
         self.language = "http"
         self.code = snippet
 
-    def _reparse_snipped_as_JSON_response(self, snippet):
+    def _reparse_snippet_as_JSON_response(self, snippet):
         # Try to make the response parsable...
         ellipsis_token = '"__API_DOC_PARSER__ELLIPSIS__"'
         snippet = snippet.replace("...", ellipsis_token)
