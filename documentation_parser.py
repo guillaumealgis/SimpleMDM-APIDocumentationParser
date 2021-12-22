@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 
-from functools import reduce
-from pprint import pprint
 import datetime
 import json
 import os
 import pathlib
 import re
 import sys
+from functools import reduce
+from pprint import pprint
 
-from bs4 import BeautifulSoup
 import requests
+from bs4 import BeautifulSoup
 
 SCRIPT_PATH = os.path.dirname(os.path.realpath(__file__))
 
